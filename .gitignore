@@ -1,0 +1,6 @@
+*~
+*.jar
+.gradle/
+gradle/
+build/
+target/
