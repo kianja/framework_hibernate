@@ -1,5 +1,6 @@
 *~
 *.jar
+!libs/*
 .gradle/
 gradle/
 build/
