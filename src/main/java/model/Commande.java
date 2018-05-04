@@ -7,9 +7,9 @@ import annotation.*;
 
 @DBTable(table="commande")
 public class Commande extends BaseModel{
-    private int id;
+	@DBColumn(name="idUtilisateur", getMethod="getUtilisateur", setMethod="setUtilisateur")
     private int utilisateur;
-
+	@DBColumn(name="daty", getMethod="getDaty", setMethod="setDaty")
     private String daty;
     public Commande(){}
     public Commande(int id,int utilisateur,String daty){
@@ -18,20 +18,16 @@ public class Commande extends BaseModel{
         this.setDaty(daty);
         setTable("commande");
     }
-    
-    @GetColumn(column="idUtilisateur")
+
     public void setUtilisateur(int utilisateur){
         this.utilisateur=utilisateur;
     }
-    @GetColumn(column="daty")
     public void setDaty(String daty){
         this.daty=daty;
     }
-    @GetColumn(column="idUtilisateur")
     public int getUtilisateur(){
         return this.utilisateur;
     }
-    @GetColumn(column="daty")
     public String getDaty(){
         return this.daty;
     }

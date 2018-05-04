@@ -18,9 +18,7 @@ public class Plat extends BaseModel
 		setNom(nom);
 	}
 
-	@GetColumn(column="nom")
 	public String getNom() { return this.nom; }
-	@SetColumn(column="nom")
 	public void setNom(String nom) { this.nom = nom; }
 
 	@Override

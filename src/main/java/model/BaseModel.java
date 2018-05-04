@@ -11,11 +11,9 @@ public abstract class BaseModel
 	private int id;
 	private static String table ;
 
-	@GetColumn(column="id", isPrimary=true)
 	public int getId() { return id; }
 	public static String getTable() { return table; }
 
-	@SetColumn(column="id")
 	public void setId(int id) { this.id = id; }
 	public void setTable(String table) { this.table = table; }
 

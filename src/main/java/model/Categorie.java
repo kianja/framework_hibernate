@@ -6,6 +6,7 @@ import annotation.*;
 
 @DBTable(table="categorie")
 public class Categorie extends BaseModel{
+	@DBColumn(name="nom", getMethod="getNom", setMethod="setNom")
     private String nom_categorie;
     public Categorie(int id, String nom_categorie){
         setId(id);
@@ -13,12 +14,11 @@ public class Categorie extends BaseModel{
         setTable("categorie");
     }
     public Categorie(){}
-    
-    @SetColumn(column="nom")
+
     public void setNom(String nom_categorie){
         this.nom_categorie=nom_categorie;
     }
-    @GetColumn(column="nom")
+
     public String getNom(){
         return this.nom_categorie;
     }
