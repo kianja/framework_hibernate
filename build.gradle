@@ -9,5 +9,17 @@ repositories {
 
 dependencies {
     providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    compile ('org.hibernate:hibernate-core:5.2.9.Final')
     compile files('libs/mysql-connector-java-5.1.40-bin.jar')
+    compile files('libs/hibernate3.jar')
+    compile files('src/main/webapp/hibernate.cfg.xml')
+    compile files ('antlr-2.7.7.jar')
+    compile files ('dom4j-1.6.1.jar')
+    compile files ('hibernate-commons-annotations-4.0.2.Final.jar')
+    compile files ('hibernate-core-4.2.21.Final.jar')
+    compile files ('hibernate-entitymanager-4.2.21.Final.jar')
+    compile files ('hibernate-jpa-2.0-api-1.0.1.Final.jar')
+    compile files ('javassist-3.18.1-GA.jar')
+    compile files ('jboss-logging-3.1.0.GA.jar')
+    compile files ('jboss-transaction-api_1.1_spec-1.0.1.Final.jar')
 }
