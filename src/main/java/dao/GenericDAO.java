@@ -28,6 +28,16 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 		return null;
 	}
 
+	private DBColumn columnAnnotation(Field cl)
+	{
+		Annotation[] annotations = cl.getAnnotations();
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof DBColumn)
+				return (DBColumn) annotation;
+		}
+		return null;
+	}
+
 	private SetColumn setMethodAnnotation(Method m)
 	{
 		Annotation[] annotations = m.getAnnotations();
@@ -81,12 +91,61 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 		return -1;
 	}
 
+	private List<String> names = new ArrayList<>();
+	private List<Boolean> isPrimary = new ArrayList<>();
+	private List<String> getMethods = new ArrayList<>();
+	private List<String> setMethods = new ArrayList<>();
+
+	private void setColumnAnnotations() throws SQLException{
+		names = new ArrayList<>();
+		isPrimary = new ArrayList<>();
+		getMethods = new ArrayList<>();
+		setMethods = new ArrayList<>();
+		List<Field> fields = fields(this.type);
+		List<DBColumn> annotations = new ArrayList<>();
+		String tmp =  "";
+		for (int i=0; i<fields.size();i++) {
+			Field f = fields.get(i);
+			DBColumn annotation = columnAnnotation(f);
+			if (annotation==null)
+				continue;
+			String name = annotation.name();
+			boolean isPrim = annotation.isPrimary();
+			String getMethod = annotation.getMethod();
+			String setMethod = annotation.setMethod();
+			if (name.length()==0)
+				name = f.getName();
+			//annotations.add(annotation);
+			names.add(name);
+			isPrimary.add(isPrim);
+			getMethods.add(getMethod);
+			setMethods.add(setMethod);
+		}
+	}
+
+	private Method getMethodByName(String name) {
+		Method[] methods = this.type.getMethods();
+		for (int i=0; i<methods.length;i++) {
+			if (methods[i].getName().equals(name))
+				return methods[i];
+		}
+		return null;
+	}
+
+	private List<Field> fields(Class cl) {
+		List<Field> fields = new ArrayList<>();
+        	while (cl != Object.class) {
+            		fields.addAll(Arrays.asList(cl.getDeclaredFields()));
+            		cl = cl.getSuperclass();
+        	}
+		return fields;
+	}
+
 	@Override
 	public List<T> findAll() throws SQLException {
 		List<T> obj = new ArrayList<>();
-		//Connection connection = null;
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
 		try {
@@ -121,31 +180,21 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	@Override
 	public void findById(T condition) throws SQLException {
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
 		try {
 			String primary = "";
-			Method[] methods = this.type.getMethods();
-			List<Method> ms = new ArrayList<>();
-			List<GetColumn> annotations = new ArrayList<>();
-			for (int i=0; i<methods.length;i++)
-			{
-				GetColumn annotation = getMethodAnnotation(methods[i]);
-				if (annotation==null)
-					continue;
-				annotations.add(annotation);
-				ms.add(methods[i]);
-			}
+			setColumnAnnotations();
 			List<Object> data = new ArrayList<>();
-			for (int i=0; i<ms.size();i++)
+			for (int i=0; i<this.getMethods.size();i++)
 			{
-				Method getMethod = ms.get(i);
+				Method getMethod = getMethodByName(this.getMethods.get(i));
 				Object result = getMethod.invoke(condition, new Object[] {});
-				GetColumn annot = annotations.get(i);
-				String tmp = annot.column() + "=? ";
-				if (annot.isPrimary()==true) {
+				//GetColumn annot = annotations.get(i);
+				String tmp = this.names.get(i) + "=? ";
+				if (this.isPrimary.get(i)==true) {
 					primary += " and " + tmp;
 					data.add(result);
 				}
@@ -178,35 +227,24 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	@Override
 	public void update(T condition) throws SQLException {
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		try {
 
 			String set = ""; String primary = "";
-			Method[] methods = this.type.getMethods();
-			List<Method> ms = new ArrayList<>();
-			List<GetColumn> annotations = new ArrayList<>();
-			for (int i=0; i<methods.length;i++)
-			{
-				GetColumn annotation = getMethodAnnotation(methods[i]);
-				if (annotation==null)
-					continue;
-				annotations.add(annotation);
-				ms.add(methods[i]);
-			}
+			setColumnAnnotations();
 			List<Object> data = new ArrayList<>();
-			for (int i=0; i<ms.size();i++)
+			for (int i=0; i<this.getMethods.size();i++)
 			{
-				GetColumn annot = annotations.get(i);
-				Method getMethod = ms.get(i);
-				String tmp = annot.column() + "=?";
-				if (annot.isPrimary()==false) {
+				Method getMethod = getMethodByName(this.getMethods.get(i));
+				String tmp = names.get(i) + "=?";
+				if (isPrimary.get(i)==false) {
 					if (i!=0)
 						set += ",";
 					set += tmp;
 				} else {
-					primary += " and " + tmp; 
+					primary += " and " + tmp;
 				}
 				data.add(getMethod.invoke(condition, new Object[] {}));
 			}
@@ -234,36 +272,24 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	@Override
 	public void insert(T condition) throws SQLException {
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		try {
-
 			String cols = ""; String vals = "";
-			Method[] methods = this.type.getMethods();
-			List<Method> ms = new ArrayList<>();
-			List<GetColumn> annotations = new ArrayList<>();
-			for (int i=0; i<methods.length;i++)
-			{
-				GetColumn annotation = getMethodAnnotation(methods[i]);
-				if (annotation==null)
-					continue;
-				annotations.add(annotation);
-				ms.add(methods[i]);
-			}
+			setColumnAnnotations();
 			List<Object> data = new ArrayList<>();
 			boolean isFirst = true;
-			for (int i=0; i<ms.size();i++)
+			for (int i=0; i<this.getMethods.size();i++)
 			{
-				GetColumn annot = annotations.get(i);
-				Method getMethod = ms.get(i);
-				if (annot.isPrimary()==true)
+				Method getMethod = getMethodByName(this.getMethods.get(i));
+				if (isPrimary.get(i)==true)
 					continue;
 				if (!isFirst) {
 					cols += ",";
 					vals += ",";
 				}
-				cols += annot.column();
+				cols += names.get(i);
 				vals += "?";
 				data.add(getMethod.invoke(condition, new Object[] {}));
 				if (isFirst)
@@ -271,8 +297,6 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 			}
 
 			String queryString = "INSERT INTO " + nomTable(this.type) + " ("+cols+") VALUES ("+vals+")";
-			//if (true)
-			//	throw new SQLException(queryString);
 			preparedStatement = conn.prepareStatement(queryString);
 			for (int i=0; i<data.size();i++)
 				preparedStatement.setObject(i+1, data.get(i));
@@ -295,36 +319,28 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	@Override
 	public void delete(T condition) throws SQLException {
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		try {
 
 			String primary = "";
-			Method[] methods = this.type.getMethods();
-			List<Method> ms = new ArrayList<>();
-			List<GetColumn> annotations = new ArrayList<>();
-			for (int i=0; i<methods.length;i++)
+			setColumnAnnotations();
+			List<Object> data = new ArrayList<>();
+			for (int i=0; i<this.getMethods.size();i++)
 			{
-				GetColumn annotation = getMethodAnnotation(methods[i]);
-				if (annotation==null)
-					continue;
-				annotations.add(annotation);
-				ms.add(methods[i]);
-			}
-			for (int i=0; i<ms.size();i++)
-			{
-				GetColumn annot = annotations.get(i);
-				Method getMethod = ms.get(i);
-				String tmp = annot.column() + "='" + getMethod.invoke(condition, new Object[] {}) + "'";
-				if (annot.isPrimary()==true)
+				Method getMethod = getMethodByName(this.getMethods.get(i));
+				String tmp = names.get(i) + "=?";
+				if (isPrimary.get(i)==true) {
 					primary += " and " + tmp;
+					data.add(getMethod.invoke(condition, new Object[] {}));
+				}
 			}
 
 			String queryString = "DELETE FROM " + nomTable(this.type) + " WHERE 1<2" + primary;
-			//if (true)
-			//	throw new SQLException(queryString);
 			preparedStatement = conn.prepareStatement(queryString);
+			for (int i=0; i<data.size();i++)
+				preparedStatement.setObject(i+1, data.get(i));
 			preparedStatement.executeUpdate();
 		}
 		catch (SQLException ex) {

@@ -7,9 +7,10 @@ import annotation.*;
 import org.hibernate.*;
 public abstract class BaseModel
 {
-	private int id ;
+	@DBColumn(name="id", isPrimary=true, getMethod="getId", setMethod="setId")
+	private int id;
 	private static String table ;
-	
+
 	@GetColumn(column="id", isPrimary=true)
 	public int getId() { return id; }
 	public static String getTable() { return table; }

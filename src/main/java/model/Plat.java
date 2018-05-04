@@ -9,6 +9,7 @@ import javax.persistence.*;
 @DBTable(table="plat")
 public class Plat extends BaseModel
 {
+	@DBColumn(name="nom", getMethod="getNom", setMethod="setNom")
 	private String nom = null;
 
 	public Plat() {}

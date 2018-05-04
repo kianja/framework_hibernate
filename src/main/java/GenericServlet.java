@@ -30,12 +30,14 @@ public class GenericServlet extends HttpServlet {
             List<Plat> plats = gDAO.findAll();
             response.getWriter().println("size="+plats.size());
             Plat p = new Plat(44, "popo");
-            gDAO.update(p);
-            p = new Plat(1, "sploooooouuuuuuuiiiiaaaaaaa");
+            //gDAO.update(p);
+            p = new Plat(1, "hihihi");
             gDAO.insert(p);
-            gDAO.delete(p);
+            gDAO.delete(new Plat(2, "hihihi"));
+            /*bgDAO.update(p);
+	    response.getWriter().println("cat.nom="+p.getNom());
             GenericDAO<Categorie> gCatDAO = new GenericDAO<>(new Categorie());
-            Categorie cat=new Categorie(45,"sorti");
+            Categorie cat=new Categorie(2,"sorti");
             gCatDAO.insert(new Categorie(1, "Categorie 1"));
             gCatDAO.insert(new Categorie(1, "Categorie 2"));
             gCatDAO.findById(cat);
@@ -43,7 +45,7 @@ public class GenericServlet extends HttpServlet {
             List<Categorie> categories = gCatDAO.findAll();
             response.getWriter().println("result_categorie="+cat.getNom()+" nom:"+cat.getNom());
             response.getWriter().println("size_categories="+categories.size());
-        } catch (Exception ex) {
+*/        } catch (Exception ex) {
             ex.printStackTrace(response.getWriter());
         }
     }
