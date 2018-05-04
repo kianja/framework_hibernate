@@ -62,28 +62,17 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	private void setAttributes(T obj, ResultSet rset) throws Exception
 	{
-		Method[] methods = this.type.getMethods();
-		List<Method> ms = new ArrayList<>();
-		List<SetColumn> annotations = new ArrayList<>();
-		for (int i=0; i<methods.length;i++)
+		setColumnAnnotations();
+		for (int i=0; i<this.getMethods.size();i++)
 		{
-			SetColumn annotation = setMethodAnnotation(methods[i]);
-			if (annotation==null)
-				continue;
-			annotations.add(annotation);
-			ms.add(methods[i]);
-		}
-		//if (true)
-		//	throw new Exception("methods.length="+methods.length+", methods.size="+ms.size());
-		for (int i=0; i<ms.size();i++)
-		{
-			String columnName = annotations.get(i).column();
-			ms.get(i).invoke(obj, new Object[] {rset.getObject(columnIndex(columnName, rset))});
+			//String columnName = annotations.get(i).column();
+			Method getMethod = getMethodByName(this.getMethods.get(i));
+			Method setMethod = getMethodByName(this.setMethods.get(i));
+			setMethod.invoke(obj, new Object[] {rset.getObject(columnIndex(names.get(i), rset))});
 		}
 	}
 
-	private int columnIndex(String column, ResultSet rset) throws Exception
-	{
+	private int columnIndex(String column, ResultSet rset) throws Exception {
 		ResultSetMetaData rsmd = rset.getMetaData();
 		for (int i=1; i<=rsmd.getColumnCount();i++)
 			if (rsmd.getColumnName(i).equals(column))
@@ -121,7 +110,7 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 			getMethods.add(getMethod);
 			setMethods.add(setMethod);
 		}
-	}
+		}
 
 	private Method getMethodByName(String name) {
 		Method[] methods = this.type.getMethods();
@@ -143,15 +132,21 @@ public class GenericDAO<T extends BaseModel> implements InterfaceDAO<T>
 
 	@Override
 	public List<T> findAll() throws SQLException {
+		return findAll(-1, -1);
+	}
+
+	@Override
+	public List<T> findAll(int page, int nbPage) throws SQLException {
 		List<T> obj = new ArrayList<>();
 		Connexion c = new Connexion();
         	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
 		try {
-			String queryString = "SELECT * FROM " + nomTable(this.type);
-			//if (true)
-			//	throw new SQLException(queryString);
+			String pagination = "";
+			if (page >= 0 && nbPage > 0)
+				pagination = " LIMIT " + (page*nbPage) + ", " + nbPage;
+			String queryString = "SELECT * FROM " + nomTable(this.type) + pagination;
 			preparedStatement = conn.prepareStatement(queryString);
 			rset = preparedStatement.executeQuery();
 			while (rset.next()) {

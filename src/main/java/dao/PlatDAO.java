@@ -9,15 +9,22 @@ public class PlatDAO implements InterfaceDAO<Plat>
 {
 	@Override
 	public List<Plat> findAll() throws SQLException {
+		return findAll(-1, -1);
+	}
+
+	@Override
+	public List<Plat> findAll(int page, int nbPage) throws SQLException {
 		List<Plat> plat = new ArrayList<>();
 		//Connection connection = null;
-		Connexion c = new Connexion();            
-        Connection conn = c.getConnect();
+		Connexion c = new Connexion();
+        	Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
 		try {
-			
-			String queryString = "SELECT * FROM " + Plat.getTable();
+			String pagination = "";
+			if (page >= 0 && nbPage > 0)
+				pagination = " LIMIT " + (page*nbPage) + ", " + nbPage;
+			String queryString = "SELECT * FROM " + Plat.getTable() + pagination;
 			preparedStatement = conn.prepareStatement(queryString);
 			rset = preparedStatement.executeQuery();
 			while (rset.next()) {
@@ -42,7 +49,7 @@ public class PlatDAO implements InterfaceDAO<Plat>
 
 	@Override
 	public void findById(Plat condition) throws SQLException {
-		Connexion c = new Connexion();            
+		Connexion c = new Connexion();
         Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
@@ -66,17 +73,17 @@ public class PlatDAO implements InterfaceDAO<Plat>
 			if (conn!=null)
 				conn.close();
 		}
-		
+
 	}
 
 	@Override
 	public void update(Plat condition) throws SQLException {
-		Connexion c = new Connexion();            
+		Connexion c = new Connexion();
         Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		ResultSet rset = null;
 		try {
-			
+
 			String queryString = "UPDATE " + Plat.getTable() + " SET nom='"+condition.getNom()+"' WHERE id="+condition.getId();
 			preparedStatement = conn.prepareStatement(queryString);
 		}
@@ -93,11 +100,11 @@ public class PlatDAO implements InterfaceDAO<Plat>
 
 	@Override
 	public void insert(Plat condition) throws SQLException {
-		Connexion c = new Connexion();            
+		Connexion c = new Connexion();
         Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		try {
-			
+
 			String queryString = "INSERT INTO plat (nom) VALUES ('"+condition.getNom()+"')";
 			preparedStatement = conn.prepareStatement(queryString);
 			//preparedStatement.setValue(1, condition.getNom());
@@ -116,11 +123,11 @@ public class PlatDAO implements InterfaceDAO<Plat>
 
 	@Override
 	public void delete(Plat condition) throws SQLException {
-		Connexion c = new Connexion();            
+		Connexion c = new Connexion();
         Connection conn = c.getConnect();
 		PreparedStatement preparedStatement = null;
 		try {
-			
+
 			String queryString = "DELETE FROM plat WHERE id="+condition.getId();
 			preparedStatement = conn.prepareStatement(queryString);
 			//preparedStatement.setValue(1, condition.getNom());

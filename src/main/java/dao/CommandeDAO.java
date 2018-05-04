@@ -7,14 +7,14 @@ import connexion.Connexion;
 public class CommandeDAO implements InterfaceDAO<Commande>{
     public void findById(Commande baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             //Commande base ;
             PreparedStatement state=null;
              try
             {
             String query="SELECT * from commande where id='" + baseModele.getId() + "' ";
-             state =conn.prepareStatement(query);  
+             state =conn.prepareStatement(query);
             ResultSet result=state.executeQuery();
             while (result.next())
             {
@@ -22,9 +22,9 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
                 baseModele.setUtilisateur(result.getInt(2));
                 baseModele.setDaty(result.getString(3));
 
-           
+
             }
-            
+
             }
             catch (Exception ex)
             {
@@ -35,30 +35,39 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
                state.close();
                conn.close();
             }
-           
+
         }
-    public List<Commande> findAll()throws SQLException
-        {
+
+	@Override
+        public List<Commande> findAll() throws SQLException {
+    	    return findAll(-1, -1);
+        }
+
+        @Override
+        public List<Commande> findAll(int page, int nbPage) throws SQLException {
             List<Commande> plat = new ArrayList<>();
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
             {
-              String query="SELECT * from commande ";
-               state =conn.prepareStatement(query);  
+		String pagination = "";
+      	      if (page >= 0 && nbPage > 0)
+      		      pagination = " LIMIT " + (page*nbPage) + ", " + nbPage;
+      	      String query = "SELECT * FROM " + Plat.getTable() + pagination;
+      	      state =conn.prepareStatement(query);
               ResultSet result=state.executeQuery();
-              
-              
+
+
               while (result.next())
                 {
 
               int id=result.getInt(1);
                 int utilisateur=result.getInt(2);
                 String daty=result.getString(3);
-            
-                    Commande listeResult= new Commande(id,utilisateur,daty);   
-                    plat.add(listeResult); 
+
+                    Commande listeResult= new Commande(id,utilisateur,daty);
+                    plat.add(listeResult);
                 }
               return plat;
             }
@@ -74,7 +83,7 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
         }
         public void insert(Commande baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -91,12 +100,12 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
         public void delete(Commande baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -113,12 +122,12 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
         public void update(Commande baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -135,7 +144,7 @@ public class CommandeDAO implements InterfaceDAO<Commande>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
-}  
+}

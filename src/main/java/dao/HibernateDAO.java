@@ -31,7 +31,7 @@ public class HibernateDAO <T extends BaseModel> implements InterfaceDAO<T>
 		return null;
 	}
     public SessionFactory sessionFactory=null;
-    
+
     @Override
     public List<T> findAll() throws SQLException {
         List<T> result = new ArrayList<>();
@@ -41,15 +41,19 @@ public class HibernateDAO <T extends BaseModel> implements InterfaceDAO<T>
         try {
                 tx = session.beginTransaction();
                  result = session.createQuery("FROM '"+ nomTable(this.type)+"'").list();
-                
+
         }
-        
+
         finally {
             sessionFactory.close();
         }
         return result;
 
     }
+
+	public List<T> findAll(int page, int nbPage) throws SQLException {
+		return null;
+	}
 
     @Override
     public void findById(T condition) throws SQLException{
@@ -59,13 +63,13 @@ public class HibernateDAO <T extends BaseModel> implements InterfaceDAO<T>
         try {
                 tx = session.beginTransaction();
                   session.createQuery("FROM Employee ");
-                
+
         }
-         
+
         finally {
             sessionFactory.close();
         }
-       
+
     }
     @Override
     public void insert(T condition) throws SQLException{
@@ -78,7 +82,7 @@ public class HibernateDAO <T extends BaseModel> implements InterfaceDAO<T>
             session.save(condition);
             session.getTransaction().commit();
         }
-        
+
         finally{
             sessionFactory.close();
         }
@@ -86,10 +90,10 @@ public class HibernateDAO <T extends BaseModel> implements InterfaceDAO<T>
     }
     @Override
     public void update(T condition) throws SQLException{
-        
+
     }
     @Override
     public void delete(T condition) throws SQLException{
-        
+
     }
 }

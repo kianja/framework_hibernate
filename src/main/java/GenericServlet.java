@@ -25,17 +25,17 @@ public class GenericServlet extends HttpServlet {
         //request.setAttribute("user", name);
         //request.getRequestDispatcher("response.jsp").forward(request, response);
         try {
-            //new PlatDAO().insert(new Categorie( "dessert"));
+            new CategorieDAO().insert(new Categorie(0, "Alll"));
             GenericDAO<Plat> gDAO = new GenericDAO<>(new Plat());
-            List<Plat> plats = gDAO.findAll();
+            List<Plat> plats = gDAO.findAll(0, 10);
             response.getWriter().println("size="+plats.size());
             Plat p = new Plat(44, "popo");
             //gDAO.update(p);
-            p = new Plat(1, "hihihi");
+            p = new Plat(1, "nounours");
             gDAO.insert(p);
-            gDAO.delete(new Plat(2, "hihihi"));
-            /*bgDAO.update(p);
-	    response.getWriter().println("cat.nom="+p.getNom());
+            gDAO.delete(new Plat(30, "hihihi"));
+            gDAO.update(p);
+	    /*response.getWriter().println("cat.nom="+p.getNom());
             GenericDAO<Categorie> gCatDAO = new GenericDAO<>(new Categorie());
             Categorie cat=new Categorie(2,"sorti");
             gCatDAO.insert(new Categorie(1, "Categorie 1"));

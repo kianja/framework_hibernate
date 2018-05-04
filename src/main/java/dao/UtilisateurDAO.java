@@ -5,58 +5,35 @@ import java.sql.*;
 import model.*;
 import connexion.Connexion;
 public class UtilisateurDAO implements InterfaceDAO<Utilisateur>{
-    @Override
-    public void findById(Utilisateur baseModele)throws SQLException
-        {
-            Connexion c = new Connexion();            
-            Connection conn = c.getConnect();
-            //BaseModele base ;
-            PreparedStatement state=null;
-             try
-            {
-                String query="SELECT * from utilisateur where id='" + baseModele.getId() + "' ";
-                state =conn.prepareStatement(query);  
-                ResultSet result=state.executeQuery();
-                while (result.next())
-                {
-                    baseModele.setNom(result.getString(1));
-                    baseModele.setPrenom(result.getString(2));                
-                }
-           
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-               state.close();
-               conn.close();
-            }
-         
+	@Override
+        public List<Utilisateur> findAll() throws SQLException {
+    	    return findAll(-1, -1);
         }
+
         @Override
-    public List<Utilisateur> findAll()throws SQLException
-        {
+        public List<Utilisateur> findAll(int page, int nbPage) throws SQLException {
             List<Utilisateur> plat = new ArrayList<>();
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
             {
-              String query="SELECT * from utilisateur ";
-               state =conn.prepareStatement(query);  
+		    String pagination = "";
+      	  if (page >= 0 && nbPage > 0)
+      		  pagination = " LIMIT " + (page*nbPage) + ", " + nbPage;
+      	  String query = "SELECT * FROM " + Plat.getTable() + pagination;
+               state =conn.prepareStatement(query);
               ResultSet result=state.executeQuery();
              // List<Utilisateur> listeResult=new ArrayList();
-              
+
               while (result.next())
                 {
 
                     String nom=result.getString(1);
                     String prenom=result.getString(2);
-                    
+
                     Utilisateur listeResult= new Utilisateur(10,nom,prenom);
-                    plat.add(listeResult)  ;  
+                    plat.add(listeResult)  ;
                 }
               return plat;
             }
@@ -70,10 +47,45 @@ public class UtilisateurDAO implements InterfaceDAO<Utilisateur>{
                conn.close();
             }
         }
+
+
+	@Override
+        public void findById(Utilisateur obj) throws SQLException {
+            Connexion c = new Connexion();
+            Connection conn = c.getConnect();
+            PreparedStatement state=null;
+             try
+            {
+      	  String query = "SELECT * FROM utilisateur WHERE id="+obj.getId();
+               state =conn.prepareStatement(query);
+              ResultSet result=state.executeQuery();
+             // List<Utilisateur> listeResult=new ArrayList();
+
+              if (result.next())
+                {
+
+                    String nom=result.getString(1);
+                    String prenom=result.getString(2);
+
+                    obj.setNom(nom); obj.setPrenom(prenom);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+               state.close();
+               conn.close();
+            }
+        }
+
+
         @Override
         public void insert(Utilisateur baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -90,13 +102,13 @@ public class UtilisateurDAO implements InterfaceDAO<Utilisateur>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
         @Override
         public void delete(Utilisateur baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -113,13 +125,13 @@ public class UtilisateurDAO implements InterfaceDAO<Utilisateur>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
         @Override
         public void update(Utilisateur baseModele)throws SQLException
         {
-            Connexion c = new Connexion();            
+            Connexion c = new Connexion();
             Connection conn = c.getConnect();
             PreparedStatement state=null;
              try
@@ -136,7 +148,7 @@ public class UtilisateurDAO implements InterfaceDAO<Utilisateur>{
              {
                  state.close();
                  conn.close();
-             }	 
+             }
 
         }
 }
